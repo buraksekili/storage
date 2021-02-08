@@ -3,6 +3,7 @@ gen-pb:
 
 client:
 	go run cmd/client/main.go
+	#go run cmd/client/main.go -path="./img/test-client/f.png"
 
 server:
 	go run cmd/server/main.go

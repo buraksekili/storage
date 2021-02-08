@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/buraksekili/storage/proto/pb"
@@ -16,15 +15,6 @@ import (
 )
 
 func uploadImage(c pb.ImageUploaderClient, path, imgName, ext string) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatalf("couldn't get cwd: %v", err)
-	}
-
-	// open image and store it in f
-	path = filepath.Join(cwd, path)
-	fmt.Println("path is: ", path)
-
 	f, err := os.Open(path)
 	if err != nil {
 		log.Fatalf("cannot open image: %v", err)
@@ -111,5 +101,4 @@ func main() {
 	lc := pb.NewImageUploaderClient(cc)
 
 	uploadImage(lc, *path, imgName, ext)
-
 }
