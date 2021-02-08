@@ -1,0 +1,22 @@
+syntax = "proto3";
+option go_package="pb";
+
+message UploadImageRequest {
+  oneof data {
+    bytes image_chunk = 1;
+    ImageInfo info = 2;
+  }
+}
+
+message ImageInfo {
+  string image_extension = 1;
+  string image_name = 2;
+}
+
+message UploadImageResponse {
+  int32 image_size = 1;
+}
+
+service ImageUploader {
+  rpc UploadImage(stream UploadImageRequest) returns (UploadImageResponse) {};
+}
