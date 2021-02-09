@@ -1,9 +1,11 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/buraksekili/storage/proto/pb"
 	"google.golang.org/grpc/codes"
@@ -30,7 +32,19 @@ func (us *UploaderServer) UploadImage(stream pb.ImageUploader_UploadImageServer)
 	}
 
 	is := 0
+
 	for {
+		time.Sleep(3 * time.Second)
+		if stream.Context().Err() == context.DeadlineExceeded {
+			log.Printf("[ERROR] context exceeded: %v", err)
+			return status.Errorf(codes.DeadlineExceeded, "context deadline exceeded: %v", err)
+		}
+
+		if stream.Context().Err() == context.Canceled {
+			log.Printf("[ERROR] context canceled: %v", err)
+			return status.Errorf(codes.Canceled, "context canceled: %v", err)
+		}
+
 		r, err := stream.Recv()
 		if err == io.EOF {
 			log.Println("[INFO] reached end of file")

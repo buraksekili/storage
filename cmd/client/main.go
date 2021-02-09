@@ -9,19 +9,24 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/buraksekili/storage/proto/pb"
 	"google.golang.org/grpc"
 )
 
 func uploadImage(c pb.ImageUploaderClient, path, imgName, ext string) {
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	f, err := os.Open(path)
 	if err != nil {
 		log.Fatalf("cannot open image: %v", err)
 	}
 	defer f.Close()
 
-	stream, err := c.UploadImage(context.Background())
+	stream, err := c.UploadImage(ctx)
 	if err != nil {
 		log.Fatalf("cannot upload image: %v", err)
 	}
@@ -48,12 +53,17 @@ func uploadImage(c pb.ImageUploaderClient, path, imgName, ext string) {
 		if err != nil {
 			log.Fatalf("[ERROR] cannot read chunk: %v", err)
 		}
+
 		req := &pb.UploadImageRequest{
 			Data: &pb.UploadImageRequest_ImageChunk{ImageChunk: chunk[:n]},
 		}
 
 		err = stream.Send(req)
 		if err != nil {
+			// fmt.Printf("st is: %v and ok is %v", st, ok)
+			if ctx.Err() == context.DeadlineExceeded {
+				log.Fatalf("[ERROR] timeout: %v", err)
+			}
 			log.Fatalf("[ERROR] cannot send chunk: %v", err)
 		}
 	}
@@ -98,7 +108,7 @@ func main() {
 	}
 	fmt.Println("dial: ", servAddr)
 
-	lc := pb.NewImageUploaderClient(cc)
+	uc := pb.NewImageUploaderClient(cc)
 
-	uploadImage(lc, *path, imgName, ext)
+	uploadImage(uc, *path, imgName, ext)
 }
