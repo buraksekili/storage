@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"time"
 
 	"github.com/buraksekili/storage/proto/pb"
 	"google.golang.org/grpc/codes"
@@ -34,7 +33,6 @@ func (us *UploaderServer) UploadImage(stream pb.ImageUploader_UploadImageServer)
 	is := 0
 
 	for {
-		time.Sleep(3 * time.Second)
 		if stream.Context().Err() == context.DeadlineExceeded {
 			log.Printf("[ERROR] context exceeded: %v", err)
 			return status.Errorf(codes.DeadlineExceeded, "context deadline exceeded: %v", err)

@@ -7,7 +7,6 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/buraksekili/storage/proto/pb"
 
@@ -16,7 +15,6 @@ import (
 	"github.com/buraksekili/storage/service"
 )
 
-var path = *flag.String("path", "./img/test.png", "define path of the image.")
 var addr = *flag.String("addr", "localhost", "define address of the server.")
 var port = *flag.String("port", "8080", "define port")
 
@@ -24,10 +22,6 @@ func main() {
 	flag.Parse()
 
 	servAddr := fmt.Sprintf("%s:%s", addr, port)
-
-	if !strings.Contains(path, "/") {
-		path = "./" + path
-	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -47,11 +41,10 @@ func main() {
 		log.Fatalf("cannot start the server: %v", err)
 	}
 
+	log.Println("[INFO] started listening on: ", servAddr)
+
 	err = grpcServer.Serve(lis)
 	if err != nil {
 		log.Fatal("cannot start the server: ", err)
 	}
-
-	log.Println("[INFO] started listening on: ", servAddr)
-
 }
